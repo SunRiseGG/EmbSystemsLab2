@@ -1,4 +1,6 @@
 from RandomSignal import RandomSignal
+from FFTThread1 import FFTThread1
+from FFTThread2 import FFTThread2
 from time import perf_counter
 from DFT import DFT
 from FFT import FFT
@@ -19,19 +21,30 @@ class Main:
     for i in range(len(points)):
         randomSignalPoints.append(points[i][1])
 
+    F_Re = [None] * len(randomSignalPoints)
+    F_Im = [None] * len(randomSignalPoints)
+    fftThread1 = FFTThread1(randomSignalPoints, F_Re, F_Im)
+    fftThread2 = FFTThread2(randomSignalPoints, F_Re, F_Im)
     fft = FFT(randomSignalPoints)
     dft = DFT(randomSignalPoints)
 
-    dftTime1 = perf_counter()
-    dftPoints = fft.calculate()
-    dftTime2 = perf_counter()
-    dftTime = dftTime2 - dftTime1
+    dftTimeStart = perf_counter()
+    dftPoints = dft.calculate()
+    dftTimeFinish = perf_counter()
+    dftTime = dftTimeFinish - dftTimeStart
 
-    fftTime1 = perf_counter()
-    fftPoints = dft.calculate()
-    fftTime2 = perf_counter()
-    fftTime = fftTime2 - fftTime1
-    print(randomSignalTime, dftTime, fftTime)
+    fftTimeStart = perf_counter()
+    fftPoints = fft.calculate()
+    fftTimeFinish = perf_counter()
+    fftTime = fftTimeFinish - fftTimeStart
+
+    fftTimeThreadsStart = perf_counter()
+    fftPoints1 = fftThread1.start()
+    fftPoints2 = fftThread2.start()
+    fftTimeThreadsFinish = perf_counter()
+    fftTimeThreads = fftTimeThreadsFinish - fftTimeThreadsStart
+
+    print(randomSignalTime, dftTime, fftTime, fftTimeThreads)
 
     plt.plot([x for x in range(N)], dftPoints, color='orange')
     plt.plot([x for x in range(N)], fftPoints, color='r')
